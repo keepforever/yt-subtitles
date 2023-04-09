@@ -19,16 +19,21 @@ app.get("/download", async (req, res) => {
   try {
     const options = {
       format: "best",
-      output: "$filename",
+      output: `${__dirname}/videos/%(id)s.%(ext)s`,
       writeAutoSub: true,
       subFormat: "json3",
       skipDownload: true,
     };
 
     const info = await youtubedl(url as string, options);
-    res.json(info);
+
+    const infoJson = JSON.stringify(info); // Convert `info` object to JSON string
+    console.log("Video info:", infoJson); // Log the JSON string
+
+    res.json(info); // Send the original `info` object as a JSON response
   } catch (error) {
-    res.status(500).send("Error processing the request");
+    console.log("\n", `error = `, error, "\n");
+    res.status(500).send("Error downloading video");
   }
 });
 
