@@ -43,7 +43,10 @@ app.get("/download", async (req, res) => {
     return;
   }
 
-  const outputFilename = `${__dirname}/json/${Date.now().toString()}`;
+  const dateString = new Date().getTime().toString();
+
+  const outputFilename = `${__dirname}/json/${dateString}`;
+  const writeFilename = `${__dirname}/text/${dateString}`;
   try {
     const options = {
       format: "best",
@@ -70,9 +73,12 @@ app.get("/download", async (req, res) => {
         let combinedUtf8 = extractUtf8(jsonData);
 
         // Replace new lines with a period
-        combinedUtf8 = combinedUtf8.replace(/\n/g, ".");
+        combinedUtf8 = combinedUtf8.replace(/\n/g, ". ");
 
-        fs.writeFile(`${outputFilename}.txt`, combinedUtf8, (err) => {
+        // const writeFileDestination = `${__dirname}/text/${dateString}.txt`;
+
+        fs.writeFile(`${dateString}.txt`, combinedUtf8, (err) => {
+          // fs.writeFile(writeFileDestination, combinedUtf8, (err) => {
           if (err) {
             console.error(`Error writing to file ${outputFilename}:`, err);
             process.exit(1);
