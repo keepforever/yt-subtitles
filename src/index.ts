@@ -1,7 +1,6 @@
 import express from "express";
 import youtubedl from "youtube-dl-exec";
 import fs from "fs";
-
 import path from "path";
 
 interface Event {
@@ -44,13 +43,12 @@ app.get("/download", async (req, res) => {
   }
 
   const dateString = new Date().getTime().toString();
-
   const outputFilename = `${__dirname}/json/${dateString}`;
   const writeFilename = `${__dirname}/text/${dateString}`;
+
   try {
     const options = {
       format: "best",
-      // output: `${__dirname}/videos/%(id)s.%(ext)s`,
       output: outputFilename,
       writeAutoSub: true,
       subFormat: "json3",
@@ -59,8 +57,14 @@ app.get("/download", async (req, res) => {
 
     const info = await youtubedl(url as string, options);
 
-    const infoJson = JSON.stringify(info); // Convert `info` object to JSON string
-    console.log("Video info:", infoJson); // Log the JSON string
+    const infoJson = JSON.stringify(info);
+    console.log("Video info:", infoJson);
+
+    // Ensure the /text directory exists
+    const textDir = path.join(__dirname, "text");
+    if (!fs.existsSync(textDir)) {
+      fs.mkdirSync(textDir);
+    }
 
     fs.readFile(`${outputFilename}.en.json3`, "utf8", (err, data) => {
       if (err) {
@@ -75,15 +79,17 @@ app.get("/download", async (req, res) => {
         // Replace new lines with a period
         combinedUtf8 = combinedUtf8.replace(/\n/g, ". ");
 
-        // const writeFileDestination = `${__dirname}/text/${dateString}.txt`;
+        const writeFileDestination = path.join(textDir, `${dateString}.txt`);
 
-        fs.writeFile(`${dateString}.txt`, combinedUtf8, (err) => {
-          // fs.writeFile(writeFileDestination, combinedUtf8, (err) => {
+        fs.writeFile(writeFileDestination, combinedUtf8, (err) => {
           if (err) {
-            console.error(`Error writing to file ${outputFilename}:`, err);
+            console.error(
+              `Error writing to file ${writeFileDestination}:`,
+              err
+            );
             process.exit(1);
           }
-          console.log(`Output has been saved to ${outputFilename}`);
+          console.log(`Output has been saved to ${writeFileDestination}`);
         });
       } catch (err) {
         console.error("Error parsing JSON data:", err);
