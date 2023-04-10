@@ -60,7 +60,9 @@ app.get("/download", async (req, res) => {
         // Extract the subtitle text as a string and write to a text file
         const jsonData = JSON.parse(data) as JsonData;
         let combinedUtf8 = extractUtf8(jsonData);
-        combinedUtf8 = combinedUtf8.replace(/\n/g, ". ");
+        /* Remove new lines and replace with period and space */
+        // combinedUtf8 = combinedUtf8.replace(/\n/g, ". ");
+
         const writeFileDestination = path.join(textDir, `${dateString}.txt`);
         fs.writeFile(writeFileDestination, combinedUtf8, (err) => {
           if (err) {
